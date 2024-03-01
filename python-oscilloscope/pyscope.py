@@ -232,11 +232,12 @@ def serial_ports():
 parser = init_argparse()
 args = parser.parse_args()
 
-print (serial_ports())
+for port in serial_ports():
+    print("found port: " + port)
 
 if (args.port == ""):
     args.port = serial_ports()[-1]
-    print("Using autodetected port: " + args.port)
+    print("Trying autodetected port: " + args.port + ", if this \r\ndoesn't work you can try the others using the command line argument:\r\npython pyscope.py -p COM<number here>\r\n")
 
 # Create a new graph 
 fig, ax = plt.subplots()
