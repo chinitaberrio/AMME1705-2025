@@ -75,16 +75,29 @@ class Scope:
 
         self.tdata = [0]
         self.ydata = [0]
+        self.ydata2 = [0]
+        self.ydata3 = [0]
         self.line = Line2D(self.tdata, self.ydata, color='blue')
+        self.line2 = Line2D(self.tdata, self.ydata2, color='red')
+        self.line3 = Line2D(self.tdata, self.ydata3, color='green')
 
         self.lines = []
+
         self.lines.append(self.line)
-
+        self.lines.append(self.line2)
+        self.lines.append(self.line3)
         self.ax.add_line(self.line)
+        self.ax.add_line(self.line2)
+        self.ax.add_line(self.line3)
 
-        self.ax.set_ylim(-0.1, 5.1)
+        #self.ax.set_ylim(-12.1, 12.1)
+        self.ax.set_ylim(-.1, 5.1)
         self.ax.set_xlim(0, self.maxt)
+
         self.measurements = deque(maxlen=1000)
+        self.measurements2 = deque(maxlen=1000)
+        self.measurements3 = deque(maxlen=1000)
+
         self.times = deque(maxlen=1000)
 
         self.text_update_counter = 10
@@ -135,8 +148,9 @@ class Scope:
             return self.line,
 
         for y in y_array:
-
             scaled_measurement = y[1]
+            scaled_measurement2 = y[2]
+            scaled_measurement3 = y[3]
 
             self.textstr = str(round(scaled_measurement,2)) + " V "
             #self.ax.text(0.05, 0.95, self.textstr, transform=self.ax.transAxes, fontsize=14,
@@ -148,21 +162,31 @@ class Scope:
                 self.text_update_counter = 10
 
             self.measurements.append(scaled_measurement)
+            self.measurements2.append(scaled_measurement2)
+            self.measurements3.append(scaled_measurement3)
             self.times.append(y[0])
 
             lastt = self.tdata[-1]
 
             self.tdata.append(y[0])
             self.ydata.append(scaled_measurement)
+            self.ydata2.append(scaled_measurement2)
+            self.ydata3.append(scaled_measurement3)
 
             if y[0] < lastt or lastt <= self.tdata[0] - self.tdata[0] % self.maxt or lastt >= self.tdata[0] - self.tdata[0] % self.maxt + self.maxt:  # reset the arrays
                 self.tdata = [self.tdata[-1]]
                 self.ydata = [self.ydata[-1]]
+
+                self.ydata2 = [self.ydata2[-1]]
+                self.ydata3 = [self.ydata3[-1]]
                 self.ax.set_xlim(self.tdata[-1]-0.01  - self.tdata[-1] % self.maxt, self.tdata[-1] - self.tdata[-1] % self.maxt + self.maxt + 0.01)
                 self.ax.figure.canvas.draw()
 
         self.line.set_data(self.tdata, self.ydata)
-        return self.line,
+        self.line2.set_data(self.tdata, self.ydata2)
+        self.line3.set_data(self.tdata, self.ydata3)
+        
+        return self.line, self.line2, self.line3,
 
 
     def emitter(self, p=0.1):
@@ -177,7 +201,7 @@ class Scope:
             input_line = self.new_samples.pop()
             valid_floats = []
 
-            if (len(input_line) != 2):
+            if (len(input_line) < 2 or len(input_line) > 4):
                 print('Parser: invalid input count ' + str(len(input_line)))
                 continue
 
@@ -190,6 +214,10 @@ class Scope:
                 except ValueError:
                     print('Invalid input line (value)')
                     continue
+
+            # append 0's until there are 4 elements in the array
+            while len(valid_floats) < 4:
+                valid_floats.append(0)
 
             # if we have a valid float array, add it to the list of valid float arrays
             valid_float_array.append(valid_floats)
@@ -275,7 +303,7 @@ def SerialReadThread(scope):
 
         valid_floats = []
 
-        if (len(input_line) != 2):
+        if (len(input_line) < 2 or len(input_line) > 4):
             print('Serial data: invalid number of elements in row ' + str(len(input_line)))
             continue
 
