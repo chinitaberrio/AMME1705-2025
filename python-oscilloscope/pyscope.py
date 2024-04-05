@@ -138,7 +138,9 @@ class Scope:
         with open(file, 'w') as f:
             for i in range(len(self.times)):
                 f.write(str(self.times[i])  
-                        + ',' + str(self.measurements[i]) + '\n')
+                        + ',' + str(self.measurements[i])
+                         + ',' + str(self.measurements2[i])
+                          + ',' + str(self.measurements3[i]) + '\n')
 
         self.ani.resume()
 
