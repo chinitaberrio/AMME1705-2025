@@ -19,8 +19,8 @@ float max_accumulated_error = 500;  // Maximum allowed value for the integral te
 
 
 // BANG-BANG controller
-// this function runs every 100ms (operating at 10Hz)
-unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint, float &accumulated_error) {
+// this function runs every 50ms (operating at 20Hz)
+int CalculateControlAction(int &currentCount, float &setpoint, float &accumulated_error) {
 
   // bang-bang controller
   if (currentCount < setpoint)
@@ -28,6 +28,7 @@ unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint,
   else
     return minimum_control_action;
 }
+
 
 
 /*
@@ -54,7 +55,7 @@ float input = 0, output = 0, setpoint = 0;
 float accumulated_error = 0;
 
 
-// Timer 1 is configured to read at 1000Hz (1kHz)
+// Timer 1 is configured to read at 10000Hz (10kHz)
 // it is important that this code does not take long to execute as
 // otherwise the next timer would expire before the previous one finishes
 // This function is called an Interrupt Service Routine (ISR)
@@ -75,7 +76,7 @@ ISR(TIMER1_COMPA_vect) {
 
 
 void setup() {
-  Serial.begin(115200);  // open up the serial port at 115200 baud rate
+  Serial.begin(1000000);  // open up the serial port at 115200 baud rate
 
   pinMode(encoderInPin, INPUT); // read from the encoder input
 
@@ -96,7 +97,7 @@ void loop() {
     int parsedInt = inputString.toInt(); // Convert the string to an integer
 
     // Ensure the parsed integer is within the desired range (0-50)
-    if (parsedInt >= 0 && parsedInt <= 50) {
+    if (parsedInt >= 0 && parsedInt <= 90) {
       // change the setpoint of the controller to the value received from the serial port
       setpoint = parsedInt;
     }
@@ -104,52 +105,55 @@ void loop() {
 }
 
 
-// timer is at 100hz (cannot be 10hz), so need to divide by 10
-unsigned int decade_counter = 0;
+// timer is at 100hz (cannot be 20hz), so need to divide by 5 to get 20hz
+unsigned int divide_frequency_counter = 0;
 
 ISR(TIMER2_COMPA_vect) {
 
-  if (decade_counter >= 10)
+  if (divide_frequency_counter >= 5)
   {
-    decade_counter = 0;
+    divide_frequency_counter = 0;
 
     /* 
      *  This is where the control is done
      */
 
-    unsigned int currentCount = encoderCounts;
+    int currentCount = encoderCounts;
     encoderCounts = 0;  // need to reset the count so that the count begins for the next period
 
     // perform this operation at 10Hz
-    unsigned int control_action = CalculateControlAction(currentCount, setpoint, accumulated_error);
+    int control_action = CalculateControlAction(currentCount, setpoint, accumulated_error);
 
     // Limit the output to the PWM range (don't want it to go max speed)
     control_action = constrain(control_action, minimum_control_action, maximum_control_action);
 
     // Write the output to the motor
     analogWrite(motorPWMPin, (int)control_action);
-
-    //Serial.print(millis());
-    //Serial.print(",");      
-    Serial.print(currentCount);
+    float timeInSeconds = (float)micros() / (float)1e6;
+  
+    Serial.print(timeInSeconds, 4);
     Serial.print(",");
+    Serial.print(currentCount);
+    Serial.print(".0,");
     Serial.print(setpoint);
     Serial.print(",");
+    //Serial.print(",");
     //Serial.print(accumulated_error);
     //Serial.print(",");
+    //float error = setpoint - currentCount;
     //Serial.print(error);
     //Serial.print(",");
     
     // the output value is scaled so that it is roughly the same magnitude as the setpoint
     // this is for graphing and visualisation only
-    Serial.println(control_action/10.0); 
+    Serial.println(control_action / 10.0); 
   }
 
   decade_counter++;
 }
 
 
-// Configure Timer1 to run at 1 kHz 
+// Configure Timer1 to run at 10 kHz 
 // the Service routine is called at this frequency
 void setupTimer1() {
  
@@ -164,8 +168,8 @@ void setupTimer1() {
   // Formula: OCR1A = (F_CPU / (Prescaler * Desired_Frequency)) - 1
   // For 1 kHz: OCR1A = (16,000,000 / (1 * 1,000)) - 1 = 15999
 
-  // currently testing at 5kHz instead
-  OCR1A = 7999;
+  // currently testing at 10kHz instead
+  OCR1A = 1562;
 
   // Enable Timer1 compare interrupt
   TIMSK1 |= (1 << OCIE1A);

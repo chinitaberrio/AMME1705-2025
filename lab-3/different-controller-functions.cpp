@@ -1,6 +1,6 @@
 // BANG-BANG controller
-// this function runs every 100ms (operating at 10Hz)
-unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint, float &accumulated_error) {
+// this function runs every 50ms (operating at 20Hz)
+int CalculateControlAction(int &currentCount, float &setpoint, float &accumulated_error) {
 
   // bang-bang controller
   if (currentCount < setpoint)
@@ -11,8 +11,8 @@ unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint,
 
 
 // Proportional only controller
-// this function runs every 100ms (operating at 10Hz)
-unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint, float &accumulated_error) {
+// this function runs every 50ms (operating at 20Hz)
+int CalculateControlAction(int &currentCount, float &setpoint, float &accumulated_error) {
 
   float Kp = 3;  // How much to weight the proportional control of the motor
    
@@ -24,8 +24,8 @@ unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint,
 
 
 // Integral only controller
-// this function runs every 100ms (operating at 10Hz)
-unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint, float &accumulated_error) {
+// this function runs every 50ms (operating at 20Hz)
+int CalculateControlAction(int &currentCount, float &setpoint, float &accumulated_error) {
 
     float Ki = 1;  // How much to weight the accumulated_error control of the motor
     
@@ -44,8 +44,8 @@ unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint,
 
 
 // PI controller
-// this function runs every 100ms (operating at 10Hz)
-unsigned int CalculateControlAction(unsigned int &currentCount, float &setpoint, float &accumulated_error) {
+// this function runs every 50ms (operating at 20Hz)
+int CalculateControlAction(int &currentCount, float &setpoint, float &accumulated_error) {
 
   // Combine proportional control with integral control (PI controller)
   float Kp = 2.0;  // How much to weight the proportional control of the motor

@@ -18,7 +18,7 @@ int outputValue = 0;        // value output to the PWM (analog out)
 void setup() {
   // Start serial communication. 
   // NOTE: the baud rate needs to be set in the serial monitor/plotter as 115200
-  Serial.begin(115200);
+  Serial.begin(1000000);
 }
 
 void loop() {
