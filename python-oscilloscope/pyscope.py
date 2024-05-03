@@ -46,6 +46,12 @@ def init_argparse() -> argparse.ArgumentParser:
         default=""
     )
     parser.add_argument(
+        "-m", "--max-value", type=int, 
+        help="""Maximum value for the graph
+              default is 5 (for 5 volts)""", 
+        default=5
+    )
+    parser.add_argument(
         "-b", "--baud", type=int, 
         help="Baud rate for the serial connection", 
         default=1000000
@@ -56,7 +62,7 @@ def init_argparse() -> argparse.ArgumentParser:
 
 
 class Scope:
-    def __init__(self, ax, maxt=4, dt=0.01):
+    def __init__(self, ax, max_value=5, maxt=4, dt=0.01):
         self.btn_1_location = []
         self.btn_2_location = []
         self.write_file_button = []
@@ -91,7 +97,7 @@ class Scope:
         self.ax.add_line(self.line3)
 
         #self.ax.set_ylim(-12.1, 12.1)
-        self.ax.set_ylim(-.1, 5.1)
+        self.ax.set_ylim(-.1, max_value + .1)
         self.ax.set_xlim(0, self.maxt)
 
         self.measurements = deque(maxlen=1000)
@@ -274,7 +280,7 @@ fig, ax = plt.subplots()
 plt.grid()
 plt.rcParams['font.size'] = 22
 fig.subplots_adjust(bottom=0.2)
-scope = Scope(ax)
+scope = Scope(ax, args.max_value)
 
 fig.set_figwidth(12)
 fig.set_figheight(8)

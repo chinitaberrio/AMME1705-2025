@@ -1,16 +1,17 @@
 /*
  * These parameters are things you can change
  */
- 
+
+// options for the CSV output to serial
+bool include_time_in_data = false;
+
 // define some limits for the motor 
 // the motor output is a PWM value between 0 and 255, this parameter sets a new upper limit in case it is spinning too fast
-const unsigned int minimum_control_action = 0;
-const unsigned int maximum_control_action = 250;
-
+const int minimum_control_action = 0;
+const int maximum_control_action = 250;
 
 // How fast the motor should spin when the program starts
 const int initialMotorSetpoint = 20;
-
 
 // Some parameters for the controller
 // Integrator windup protection - stops the accumulation of error from increasing too much
@@ -18,9 +19,10 @@ float min_accumulated_error = 0; // Minimum allowed value for the integral term
 float max_accumulated_error = 500;  // Maximum allowed value for the integral term
 
 
+
 // BANG-BANG controller
 // this function runs every 50ms (operating at 20Hz)
-int CalculateControlAction(int &currentCount, float &setpoint, float &accumulated_error) {
+int CalculateControlAction(int &currentCount, float &setpoint, float &error_sum) {
 
   // bang-bang controller
   if (currentCount < setpoint)
@@ -91,6 +93,13 @@ void setup() {
 
 // Inside the loop, the program reads from the serial port, allowing you to type a new set point from the serial monitor/plotter
 void loop() {
+
+  // Use the following code if you want to read the setpoint from analog input A0
+  setpoint = map(analogRead(A0), 0, 1023, 0, 50);
+  delay(250);
+
+  // use the following code if you want to read the setpoint from the serial port
+  /*
   // Check if there is new serial data available
   if (Serial.available() > 0) { 
     String inputString = Serial.readStringUntil('\n'); // Read the incoming data until a newline character is encountered
@@ -102,6 +111,7 @@ void loop() {
       setpoint = parsedInt;
     }
   }
+  */
 }
 
 
@@ -125,31 +135,40 @@ ISR(TIMER2_COMPA_vect) {
     int control_action = CalculateControlAction(currentCount, setpoint, accumulated_error);
 
     // Limit the output to the PWM range (don't want it to go max speed)
-    control_action = constrain(control_action, minimum_control_action, maximum_control_action);
+    if (control_action < minimum_control_action)
+      control_action = minimum_control_action;
+    else if (control_action > maximum_control_action)
+      control_action = maximum_control_action;
 
     // Write the output to the motor
     analogWrite(motorPWMPin, (int)control_action);
     float timeInSeconds = (float)micros() / (float)1e6;
-  
-    Serial.print(timeInSeconds, 4);
-    Serial.print(",");
+
+    // print time if required
+    if (include_time_in_data) {
+      Serial.print(timeInSeconds, 4);
+      Serial.print(",");
+    }
+
+    // print the current count from the encoder (in 0.05 seconds)
     Serial.print(currentCount);
-    Serial.print(".0,");
-    Serial.print(setpoint);
+    Serial.print(".0");
+
+    // print the current set point
     Serial.print(",");
+    Serial.print(setpoint);
+
+    // print the accumulated error
     //Serial.print(",");
     //Serial.print(accumulated_error);
-    //Serial.print(",");
-    //float error = setpoint - currentCount;
-    //Serial.print(error);
-    //Serial.print(",");
-    
+
     // the output value is scaled so that it is roughly the same magnitude as the setpoint
     // this is for graphing and visualisation only
+    Serial.print(",");
     Serial.println(control_action / 10.0); 
   }
 
-  decade_counter++;
+  divide_frequency_counter++;
 }
 
 
