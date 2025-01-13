@@ -54,7 +54,7 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument(
         "-b", "--baud", type=int, 
         help="Baud rate for the serial connection", 
-        default=1000000
+        default=9600
     )
     #parser.add_argument('files', nargs='*')
     return parser
