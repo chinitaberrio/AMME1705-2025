@@ -2,7 +2,7 @@
 const int oscilloscopePin = A0;  // This is our oscilloscope 'probe'
 
 long last_measurement_us = 0; // last measurement time in microseconds
-long sample_rate_us = 50000; // time between samples in microseconds
+long sample_rate_us = 5000; // time between samples in microseconds
 
 int measurementVoltage = 0; // measurement read from pin oscilloscopePin
 
