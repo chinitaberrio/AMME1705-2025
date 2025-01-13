@@ -7,7 +7,7 @@ long sample_rate_us = 50000; // time between samples in microseconds
 int measurementVoltage = 0; // measurement read from pin oscilloscopePin
 
 void setup() {
-  Serial.begin(1000000); // initialise serial communications at 115200
+  Serial.begin(9600); // initialise serial communications at 9600 baud rate
 }
 
 void loop() {
