@@ -19,7 +19,7 @@ int measurementVoltage3 = 0; // measurement read from pin oscilloscopePin
 int buttonState = HIGH;
 
 void setup() {
-  Serial.begin(1000000); // initialise serial communications at 115200
+  Serial.begin(9600); // initialise serial communications at 115200
   
   //Serial.println("Press a button connected to pin 2 to start");
   pinMode(buttonPin, INPUT);
