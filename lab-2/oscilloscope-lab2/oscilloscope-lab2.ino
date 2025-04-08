@@ -52,7 +52,7 @@ void loop() {
   // map this to a voltage (0 is 0V, 1024 is 5V)
   float measurementValueFloat1 = 5. * (measurementVoltage1 / 1024.);
   float measurementValueFloat2 = 5. * (measurementVoltage2 / 1024.);
-//  float measurementValueFloat3 = 5. * (measurementVoltage3 / 1024.);
+  float measurementValueFloat3 = 5. * (measurementVoltage3 / 1024.);
   float timeInSeconds = (float)micros() / (float)1e6;
 
   // output a comma separated string (CSV) to the serial port
@@ -62,7 +62,7 @@ void loop() {
   }
   Serial.print(measurementValueFloat1, 3);
   Serial.print(",");
-  Serial.println(measurementValueFloat2, 3);
- // Serial.print(",");
-//  Serial.println(measurementValueFloat3, 3);
+  Serial.print(measurementValueFloat2, 3);
+  Serial.print(",");
+  Serial.println(measurementValueFloat3, 3);
 }
