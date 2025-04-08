@@ -1,6 +1,6 @@
 // options for the Arduino oscilloscope
 bool include_time_in_data = true;
-bool use_button_to_start_logging = false;
+bool use_button_to_start_logging = true;
 long sample_rate_us = 10000; // time between samples in microseconds
 
 // Measure Oscilloscope pin from analog input
